@@ -11,16 +11,16 @@ app.use(bodyParser.json());
 
 // Route to send email
 app.post('/send-email', (req, res) => {
-    const { from, to, subject, text, appPassword } = req.body;
+    const { from, to, subject, text, appPassword ,name} = req.body;
 
-    if (!from || !to || !subject || !text || !appPassword) {
+    if (!from || !to || !subject || !text || !appPassword || !name) {
         res.status(500).send('Please enter all required information {from, to, subject, text, appPassword }');
         return;
     }
-
+    // console.log(`${appPassword} ${from} ${to} ${subject} ${text} ${name}`);
     // Create a Nodemailer transporter 
-    const transporter = createTransport({
-        service: 'Gmail',
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
         auth: {
             user: from, // Your Gmail email address
             pass: appPassword // Your Gmail password or App Password
@@ -29,7 +29,7 @@ app.post('/send-email', (req, res) => {
 
     // Email data 
     const mailOptions = {
-        from: from, // Sender email
+        from: `${name} <${from}>`, // Sender email
         to: to, // Recipient email
         subject: subject,
         text: text
@@ -39,7 +39,7 @@ app.post('/send-email', (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log(error);
-            res.status(500).send('Error sending email'); 
+            res.status(500).send('Error sending email');
         } else {
             console.log('Email sent: ' + info.response);
             res.status(200).send('Email sent successfully');
